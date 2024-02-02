@@ -1,0 +1,269 @@
+# Exploratory Data Analysis
+
+# Assignment: Exploratory Data Analysis
+
+In this assignment, you will work with the [provided
+dataset](#the-dataset) to better understand the shape & structure of the
+data, investigate initial questions, and develop preliminary insights &
+hypotheses. Your final submission will take the form of a report
+consisting of captioned visualizations that convey key insights gained
+during your analysis.
+
+**Please read all the instructions here carefully before proceeding!!**
+
+**A reminder that all work is personal work. You may discuss topics but
+you may not use code from other students and colleagues without
+attribution. Any code that you use from other sources like the internet
+must be cited with the appropriate hyperlink or other reference.**
+
+## The dataset
+
+<div>
+
+> **Note**
+>
+> This dataset is from the medical domain. We do not expect you to
+> understand all of the diseases, symptoms, or other medical context.
+> However, we do expect you to be able to explore, visualize and analyze
+> and ask some interesting questions.
+
+</div>
+
+A database was collected at [Chiba University
+hospital](https://www.ho.chiba-u.ac.jp/hosp/en/index.html) over a period
+of several years. Some patients who visited the outpatient clinic of the
+hospital had [collagen
+diseases](https://en.wikipedia.org/wiki/Collagen_disease). They were
+referred to the hospital by a family physician in a private clinic
+nearby. For collagen diseases,
+[thrombosis](https://en.wikipedia.org/wiki/Thrombosis) is one of the
+most important and severe complications and one of the major causes of
+death. Thrombosis is an increased coagulation of blood that clogs blood
+vessels. Thrombosis must be treated as an emergency and it is important
+to detect and predict the possibilities of its occurrence. An analysis
+of historical data may help with this task. For such purposes, a
+well-known physician and medical researcher decided to donate data he
+had previously collected from treating his own patients. He hopes that
+you can discover patterns in the patient data.
+
+### Data dictionary
+
+The table `patient-info.csv` contains 1,241 records of patients from the
+hospital.
+
+| Field                   | Description                                              |
+|-------------------------|----------------------------------------------------------|
+| `id`                    | Patient identifier                                       |
+| `sex`                   | Patient sex                                              |
+| `dob`                   | Date of birth                                            |
+| `patient_data_recorded` | Date when patient data was registered in hospital system |
+| `hospital_visit_date`   | Date when patient visited the hospital                   |
+| `admission`             | Was the patient admitted                                 |
+
+The table `exam.csv` contains test result information for the patients
+who had special collagen related tests.
+
+| Field              | Description                                       |
+|--------------------|---------------------------------------------------|
+| `id`               | Patient identifier                                |
+| `examination_date` | Date of testing                                   |
+| `a_cl_ig_g`        | anti-Cardiolipin antibody (IgG) concentration     |
+| `a_cl_ig_m`        | anti-Cardiolipin antibody (IgM) concentration     |
+| `ana`              | anti-nucleus antibody concentration               |
+| `a_cl_ig_a`        | anti-Cardiolipin antibody (IgA) concentration     |
+| `kct`              | test of coagulation: + (above normal), - (normal) |
+| `rvvt`             | test of coagulation: + (above normal), - (normal) |
+| `lac`              | test of coagulation: + (above normal), - (normal) |
+| `thrombosis`       | wether or not there was thrombosis                |
+| `severity`         | Thrombosis severity when present                  |
+
+The table `diagnosis.csv` contains one or more diagnoses of collagen
+diseases or other for patients who had specialized tests.
+
+| Field              | Description                           |
+|--------------------|---------------------------------------|
+| `id`               | Patient identifier                    |
+| `examination_date` | Date of testing                       |
+| `diagnosis`        | Name of diagnosis of various diseases |
+
+The table `symptoms.csv` containes one or more symptoms for a patient at
+the time of their specialized tests.
+
+| Field              | Description        |
+|--------------------|--------------------|
+| `id`               | Patient identifier |
+| `examination_date` | Date of testing    |
+| `symptom`          | Name of symptom    |
+
+The table `ana-pattern.csv` contains information about patterns of
+antinuclear antobodies (ANA) present in the blood. In addition to the
+antibody concentration (in the `exam.csv` data), this can help determine
+the right kind of autoimmune disease and treatment.
+
+| Field              | Description                                                                                                          |
+|--------------------|----------------------------------------------------------------------------------------------------------------------|
+| `id`               | Patient identifier                                                                                                   |
+| `examination_date` | Date of testing                                                                                                      |
+| `ana_pattern`      | Pattern observed in the ANA test: P (peripheral), H (homogeneos), S (speckled), N (nucleolar), D (discrete speckled) |
+
+### Data considerations and additional context
+
+- The `examination_date` in all tables but `patient-info` is frequently
+  close to the date of a thrombosis, but not necessarily the same
+- Different values of diagnoses belong to different categories (collagen
+  diseases and others), but that information is unavailable
+- Patients belong to one of three categories:
+  1.  Patients not admitted and that did not have any special testing
+      done; these patients *did not* suffer from thrombosis
+  2.  Patients admitted and who did have special tests done
+  3.  Patients not admitted but did have special tests done
+
+## Part 1: Data Ingestion and Munging
+
+<div>
+
+> **Caution**
+>
+> The data preparation (also known as *data wrangling*) can be a very
+> tedious and time-consuming process. Be sure you have sufficient time
+> to conduct exploratory analysis, **after** preparing the data.
+
+</div>
+
+Based on the [data dictionary](#data-dictionary) — *but prior to
+analysis* — you should write down an initial set of **at least three
+different questions** you’d like to investigate.
+
+Process the data to create an analytical tidy dataset. You may join
+tables, rearrange data, and create new variables or transformations.
+
+## Part 2: Exploratory Visual Analysis
+
+Next, you will perform an exploratory analysis of the dataset using a R,
+Python, or both. You should consider rapid prototyping rather than final
+presentation during your exploration phase. Your submission, however,
+should be a publication-quality visualization. You should consider *two
+different phases* of exploration.
+
+1.  In the first phase, you should seek to *gain an overview* of the
+    shape & structure of your dataset. What variables does the dataset
+    contain? How are they distributed? Are there any notable data
+    quality issues? Are there any surprising relationships among the
+    variables? Be sure to also perform “sanity checks” for patterns you
+    expect to see!
+
+Keep the following in mind:
+
+- look at counts before and after joins
+- are there duplicate records?
+  - a record that is repeated with the same information in all fields
+    more than once
+  - multiple records with same unit of analysis, but different
+    attributes
+- how do you structure your analytical dataset: what is your unit of
+  analysis and what are the attributes of that unit?
+- are there inconsistencies with the data?
+- are there any patterns that are relevant? (you are not trying to
+  determine causality)
+- for any patient, only their first thrombosis attack is known. Many
+  patients had subsequent attacks but that information is unavailable
+- is there any missing data, values that should be truly missing, or
+  values that shouldn’t be there?
+
+1.  In the second phase, you should investigate your initial questions,
+    as well as *any new questions* that arise during your exploration.
+    For each question, start by creating a visualization that might
+    provide a useful answer. Then refine the visualization (e.g., by
+    adding additional variables, changing sorting or axis scales,
+    transforming your data by filtering or subsetting it, etc.) to
+    develop better perspectives, explore unexpected observations, or
+    sanity check your assumptions. You should repeat this process for
+    each of your questions, but feel free to revise your questions or
+    branch off to explore new questions if the data warrants.
+
+## Submission and technical notes
+
+- Your final submission should take the form of a **HTML report** that
+  consists of **10 or more** captioned **static** visualizations
+  detailing your most important insights. Your “insights” can include
+  important surprises or issues (such as data quality problems affecting
+  your analysis) as well as responses to your analysis questions. To
+  help you gauge the scope of this assignment, see [this example
+  report](https://georgetown.box.com/s/24pddp9bb3auf9pf0j7hyo8bj1dfg729)
+  analyzing data about motion pictures. We’ve annotated and graded this
+  example to help you calibrate for the breadth and depth of exploration
+  we’re looking for.
+
+- Your visualizations must:
+
+  - have a caption (using the chunk option `fig-cap`) describing what
+    story the visualization is intended to tell, as well as reference
+    for the source of the data (see the documentation above)
+  - be properly labeled, with axes labeled and units shown
+  - have any necessary annotations to help the viewer understand
+  - have a title
+  - use the themes you’ve developed, or improvements to them that you
+    have developed here. If you do improve your theme, add a section at
+    the *end* of the assignment stating the modifications you have made
+    to the theme.
+
+- You may use `R`, `Python`, or both at your discretion
+
+- You do not need to do everything in the Quarto file. You can work on
+  the visualizations, data processing, etc. in individual `R` or
+  `Python` scripts outside of the Quarto file in the `code/` directory.
+  When you render the Quarto file, you can include individual scripts
+  (that process data or create visualizations) in chunks by using the
+  following chunk options:
+
+<div class="columns">
+
+<div class="column" width="47%">
+
+```` markdown
+```{r}
+#| echo: true
+#| eval: true 
+#| file: code/myscript.R
+```
+````
+
+</div>
+
+<div class="column" width="6%">
+
+</div>
+
+<div class="column" width="47%">
+
+```` markdown
+```{python}
+#| echo: true
+#| eval: true 
+#| file: code/myscript.py
+```
+````
+
+</div>
+
+</div>
+
+- You must render the final output using a Quarto file named
+  `my_submission.qmd` and render it to `my_submission.html` at the root
+  level
+- Separate your sections with a level 2 header (`## ...`).
+
+The end of your report should include a brief summary of main lessons
+learned.
+
+## Rubric
+
+| Component                | Excellent                                                                                                                                               | Satisfactory                                                                                                                         | Poor                                                                                                          |
+|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| Breadth of Exploration   | More than 3 questions were initially asked, and target substantially different portions/aspects of the data.                                            | At least 3 questions were initially asked of the data, but there is some overlap between questions.                                  | Fewer than 3 initial questions were posed of the data.                                                        |
+| Depth of Exploration     | A sufficient number of follow-up questions were asked to yield insights that helped to more deeply explore the initial questions.                       | Some follow-up questions were asked, but they did not take the analysis much deeper than the initial questions.                      | No follow-up questions were asked after answering the initial questions.                                      |
+| Data Quality             | Data quality was thoroughly assessed with extensive profiling of fields and records.                                                                    | Simple checks were conducted on only a handful of fields or records.                                                                 | Little or no evidence that data quality was assessed.                                                         |
+| Visualizations           | More than 10 visualizations were produced, and a variety of marks and encodings were explored. All design decisions were both expressive and effective. | At least 10 visualizations were produced. The visual encodings chosen were largely effective and expressive, but some errors remain. | Several ineffective or inexpressive design choices are made. Fewer than 10 visualizations have been produced. |
+| Data Transformation      | More advanced transformation were used to extend the dataset in interesting or useful ways.                                                             | Simple transforms (e.g., sorting, filtering) were primarily used.                                                                    | The raw dataset was used directly, with little to no additional transformation.                               |
+| Captions                 | Captions richly describe the visualizations and contextualize the insight within the analysis.                                                          | Captions do a good job describing the visualizations, but could better connect prior or subsequent steps of the analysis.            | Captions are missing, overly brief, or shallow in their analysis of visualizations.                           |
+| Creativity & Originality | You exceeded the parameters of the assignment, with original insights or a particularly engaging design.                                                | You met all the parameters of the assignment.                                                                                        | You met most of the parameters of the assignment.                                                             |

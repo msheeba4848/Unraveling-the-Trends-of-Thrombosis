@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Exploratory Data Analysis</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="README_files/libs/clipboard/clipboard.min.js"></script>
+<script src="README_files/libs/quarto-html/quarto.js"></script>
+<script src="README_files/libs/quarto-html/popper.min.js"></script>
+<script src="README_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="README_files/libs/quarto-html/anchor.min.js"></script>
+<link href="README_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="README_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="README_files/libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="README_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="README_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="README_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="README_files/libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#assignment-exploratory-data-analysis" id="toc-assignment-exploratory-data-analysis" class="nav-link active" data-scroll-target="#assignment-exploratory-data-analysis">Assignment: Exploratory Data Analysis</a>
+  <ul class="collapse">
+  <li><a href="#the-dataset" id="toc-the-dataset" class="nav-link" data-scroll-target="#the-dataset">The dataset</a>
+  <ul class="collapse">
+  <li><a href="#data-dictionary" id="toc-data-dictionary" class="nav-link" data-scroll-target="#data-dictionary">Data dictionary</a></li>
+  <li><a href="#data-considerations-and-additional-context" id="toc-data-considerations-and-additional-context" class="nav-link" data-scroll-target="#data-considerations-and-additional-context">Data considerations and additional context</a></li>
+  </ul></li>
+  <li><a href="#part-1-data-ingestion-and-munging" id="toc-part-1-data-ingestion-and-munging" class="nav-link" data-scroll-target="#part-1-data-ingestion-and-munging">Part 1: Data Ingestion and Munging</a></li>
+  <li><a href="#part-2-exploratory-visual-analysis" id="toc-part-2-exploratory-visual-analysis" class="nav-link" data-scroll-target="#part-2-exploratory-visual-analysis">Part 2: Exploratory Visual Analysis</a></li>
+  <li><a href="#submission-and-technical-notes" id="toc-submission-and-technical-notes" class="nav-link" data-scroll-target="#submission-and-technical-notes">Submission and technical notes</a></li>
+  <li><a href="#rubric" id="toc-rubric" class="nav-link" data-scroll-target="#rubric">Rubric</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Exploratory Data Analysis</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="assignment-exploratory-data-analysis" class="level1">
+<h1>Assignment: Exploratory Data Analysis</h1>
+<p>In this assignment, you will work with the <a href="#the-dataset">provided dataset</a> to better understand the shape &amp; structure of the data, investigate initial questions, and develop preliminary insights &amp; hypotheses. Your final submission will take the form of a report consisting of captioned visualizations that convey key insights gained during your analysis.</p>
+<p><strong>Please read all the instructions here carefully before proceeding!!</strong></p>
+<p><strong>A reminder that all work is personal work. You may discuss topics but you may not use code from other students and colleagues without attribution. Any code that you use from other sources like the internet must be cited with the appropriate hyperlink or other reference.</strong></p>
+<section id="the-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="the-dataset">The dataset</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This dataset is from the medical domain. We do not expect you to understand all of the diseases, symptoms, or other medical context. However, we do expect you to be able to explore, visualize and analyze and ask some interesting questions.</p>
+</div>
+</div>
+<p>A database was collected at <a href="https://www.ho.chiba-u.ac.jp/hosp/en/index.html">Chiba University hospital</a> over a period of several years. Some patients who visited the outpatient clinic of the hospital had <a href="https://en.wikipedia.org/wiki/Collagen_disease">collagen diseases</a>. They were referred to the hospital by a family physician in a private clinic nearby. For collagen diseases, <a href="https://en.wikipedia.org/wiki/Thrombosis">thrombosis</a> is one of the most important and severe complications and one of the major causes of death. Thrombosis is an increased coagulation of blood that clogs blood vessels. Thrombosis must be treated as an emergency and it is important to detect and predict the possibilities of its occurrence. An analysis of historical data may help with this task. For such purposes, a well-known physician and medical researcher decided to donate data he had previously collected from treating his own patients. He hopes that you can discover patterns in the patient data.</p>
+<section id="data-dictionary" class="level3">
+<h3 class="anchored" data-anchor-id="data-dictionary">Data dictionary</h3>
+<p>The table <code>patient-info.csv</code> contains 1,241 records of patients from the hospital.</p>
+<table class="table">
+<colgroup>
+<col style="width: 35%">
+<col style="width: 64%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>id</code></td>
+<td>Patient identifier</td>
+</tr>
+<tr class="even">
+<td><code>sex</code></td>
+<td>Patient sex</td>
+</tr>
+<tr class="odd">
+<td><code>dob</code></td>
+<td>Date of birth</td>
+</tr>
+<tr class="even">
+<td><code>patient_data_recorded</code></td>
+<td>Date when patient data was registered in hospital system</td>
+</tr>
+<tr class="odd">
+<td><code>hospital_visit_date</code></td>
+<td>Date when patient visited the hospital</td>
+</tr>
+<tr class="even">
+<td><code>admission</code></td>
+<td>Was the patient admitted</td>
+</tr>
+</tbody>
+</table>
+<p>The table <code>exam.csv</code> contains test result information for the patients who had special collagen related tests.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>id</code></td>
+<td>Patient identifier</td>
+</tr>
+<tr class="even">
+<td><code>examination_date</code></td>
+<td>Date of testing</td>
+</tr>
+<tr class="odd">
+<td><code>a_cl_ig_g</code></td>
+<td>anti-Cardiolipin antibody (IgG) concentration</td>
+</tr>
+<tr class="even">
+<td><code>a_cl_ig_m</code></td>
+<td>anti-Cardiolipin antibody (IgM) concentration</td>
+</tr>
+<tr class="odd">
+<td><code>ana</code></td>
+<td>anti-nucleus antibody concentration</td>
+</tr>
+<tr class="even">
+<td><code>a_cl_ig_a</code></td>
+<td>anti-Cardiolipin antibody (IgA) concentration</td>
+</tr>
+<tr class="odd">
+<td><code>kct</code></td>
+<td>test of coagulation: + (above normal), - (normal)</td>
+</tr>
+<tr class="even">
+<td><code>rvvt</code></td>
+<td>test of coagulation: + (above normal), - (normal)</td>
+</tr>
+<tr class="odd">
+<td><code>lac</code></td>
+<td>test of coagulation: + (above normal), - (normal)</td>
+</tr>
+<tr class="even">
+<td><code>thrombosis</code></td>
+<td>wether or not there was thrombosis</td>
+</tr>
+<tr class="odd">
+<td><code>severity</code></td>
+<td>Thrombosis severity when present</td>
+</tr>
+</tbody>
+</table>
+<p>The table <code>diagnosis.csv</code> contains one or more diagnoses of collagen diseases or other for patients who had specialized tests.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>id</code></td>
+<td>Patient identifier</td>
+</tr>
+<tr class="even">
+<td><code>examination_date</code></td>
+<td>Date of testing</td>
+</tr>
+<tr class="odd">
+<td><code>diagnosis</code></td>
+<td>Name of diagnosis of various diseases</td>
+</tr>
+</tbody>
+</table>
+<p>The table <code>symptoms.csv</code> containes one or more symptoms for a patient at the time of their specialized tests.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>id</code></td>
+<td>Patient identifier</td>
+</tr>
+<tr class="even">
+<td><code>examination_date</code></td>
+<td>Date of testing</td>
+</tr>
+<tr class="odd">
+<td><code>symptom</code></td>
+<td>Name of symptom</td>
+</tr>
+</tbody>
+</table>
+<p>The table <code>ana-pattern.csv</code> contains information about patterns of antinuclear antobodies (ANA) present in the blood. In addition to the antibody concentration (in the <code>exam.csv</code> data), this can help determine the right kind of autoimmune disease and treatment.</p>
+<table class="table">
+<colgroup>
+<col style="width: 35%">
+<col style="width: 64%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>id</code></td>
+<td>Patient identifier</td>
+</tr>
+<tr class="even">
+<td><code>examination_date</code></td>
+<td>Date of testing</td>
+</tr>
+<tr class="odd">
+<td><code>ana_pattern</code></td>
+<td>Pattern observed in the ANA test: P (peripheral), H (homogeneos), S (speckled), N (nucleolar), D (discrete speckled)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="data-considerations-and-additional-context" class="level3">
+<h3 class="anchored" data-anchor-id="data-considerations-and-additional-context">Data considerations and additional context</h3>
+<ul>
+<li>The <code>examination_date</code> in all tables but <code>patient-info</code> is frequently close to the date of a thrombosis, but not necessarily the same</li>
+<li>Different values of diagnoses belong to different categories (collagen diseases and others), but that information is unavailable</li>
+<li>Patients belong to one of three categories:
+<ol type="1">
+<li>Patients not admitted and that did not have any special testing done; these patients <em>did not</em> suffer from thrombosis</li>
+<li>Patients admitted and who did have special tests done</li>
+<li>Patients not admitted but did have special tests done</li>
+</ol></li>
+</ul>
+</section>
+</section>
+<section id="part-1-data-ingestion-and-munging" class="level2">
+<h2 class="anchored" data-anchor-id="part-1-data-ingestion-and-munging">Part 1: Data Ingestion and Munging</h2>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Caution
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The data preparation (also known as <em>data wrangling</em>) can be a very tedious and time-consuming process. Be sure you have sufficient time to conduct exploratory analysis, <strong>after</strong> preparing the data.</p>
+</div>
+</div>
+<p>Based on the <a href="#data-dictionary">data dictionary</a> — <em>but prior to analysis</em> — you should write down an initial set of <strong>at least three different questions</strong> you’d like to investigate.</p>
+<p>Process the data to create an analytical tidy dataset. You may join tables, rearrange data, and create new variables or transformations.</p>
+</section>
+<section id="part-2-exploratory-visual-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="part-2-exploratory-visual-analysis">Part 2: Exploratory Visual Analysis</h2>
+<p>Next, you will perform an exploratory analysis of the dataset using a R, Python, or both. You should consider rapid prototyping rather than final presentation during your exploration phase. Your submission, however, should be a publication-quality visualization. You should consider <em>two different phases</em> of exploration.</p>
+<ol type="1">
+<li>In the first phase, you should seek to <em>gain an overview</em> of the shape &amp; structure of your dataset. What variables does the dataset contain? How are they distributed? Are there any notable data quality issues? Are there any surprising relationships among the variables? Be sure to also perform “sanity checks” for patterns you expect to see!</li>
+</ol>
+<p>Keep the following in mind:</p>
+<ul>
+<li>look at counts before and after joins</li>
+<li>are there duplicate records?
+<ul>
+<li>a record that is repeated with the same information in all fields more than once</li>
+<li>multiple records with same unit of analysis, but different attributes</li>
+</ul></li>
+<li>how do you structure your analytical dataset: what is your unit of analysis and what are the attributes of that unit?</li>
+<li>are there inconsistencies with the data?</li>
+<li>are there any patterns that are relevant? (you are not trying to determine causality)</li>
+<li>for any patient, only their first thrombosis attack is known. Many patients had subsequent attacks but that information is unavailable</li>
+<li>is there any missing data, values that should be truly missing, or values that shouldn’t be there?</li>
+</ul>
+<ol type="1">
+<li>In the second phase, you should investigate your initial questions, as well as <em>any new questions</em> that arise during your exploration. For each question, start by creating a visualization that might provide a useful answer. Then refine the visualization (e.g., by adding additional variables, changing sorting or axis scales, transforming your data by filtering or subsetting it, etc.) to develop better perspectives, explore unexpected observations, or sanity check your assumptions. You should repeat this process for each of your questions, but feel free to revise your questions or branch off to explore new questions if the data warrants.</li>
+</ol>
+</section>
+<section id="submission-and-technical-notes" class="level2">
+<h2 class="anchored" data-anchor-id="submission-and-technical-notes">Submission and technical notes</h2>
+<ul>
+<li><p>Your final submission should take the form of a <strong>HTML report</strong> that consists of <strong>10 or more</strong> captioned <strong>static</strong> visualizations detailing your most important insights. Your “insights” can include important surprises or issues (such as data quality problems affecting your analysis) as well as responses to your analysis questions. To help you gauge the scope of this assignment, see <a href="https://georgetown.box.com/s/24pddp9bb3auf9pf0j7hyo8bj1dfg729">this example report</a> analyzing data about motion pictures. We’ve annotated and graded this example to help you calibrate for the breadth and depth of exploration we’re looking for.</p></li>
+<li><p>Your visualizations must:</p>
+<ul>
+<li>have a caption (using the chunk option <code>fig-cap</code>) describing what story the visualization is intended to tell, as well as reference for the source of the data (see the documentation above)</li>
+<li>be properly labeled, with axes labeled and units shown</li>
+<li>have any necessary annotations to help the viewer understand</li>
+<li>have a title</li>
+<li>use the themes you’ve developed, or improvements to them that you have developed here. If you do improve your theme, add a section at the <em>end</em> of the assignment stating the modifications you have made to the theme.</li>
+</ul></li>
+<li><p>You may use <code>R</code>, <code>Python</code>, or both at your discretion</p></li>
+<li><p>You do not need to do everything in the Quarto file. You can work on the visualizations, data processing, etc. in individual <code>R</code> or <code>Python</code> scripts outside of the Quarto file in the <code>code/</code> directory. When you render the Quarto file, you can include individual scripts (that process data or create visualizations) in chunks by using the following chunk options:</p></li>
+</ul>
+<div class="columns">
+<div class="column" style="width:47%;">
+<div class="sourceCode" id="cb1"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: true </span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#| file: code/myscript.R</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div><div class="column" style="width:6%;">
+
+</div><div class="column" style="width:47%;">
+<div class="sourceCode" id="cb2"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: true </span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#| file: code/myscript.py</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<ul>
+<li>You must render the final output using a Quarto file named <code>my_submission.qmd</code> and render it to <code>my_submission.html</code> at the root level</li>
+<li>Separate your sections with a level 2 header (<code>## ...</code>).</li>
+</ul>
+<p>The end of your report should include a brief summary of main lessons learned.</p>
+</section>
+<section id="rubric" class="level2">
+<h2 class="anchored" data-anchor-id="rubric">Rubric</h2>
+<table class="table">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 29%">
+<col style="width: 29%">
+<col style="width: 29%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>Excellent</th>
+<th>Satisfactory</th>
+<th>Poor</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Breadth of Exploration</td>
+<td>More than 3 questions were initially asked, and target substantially different portions/aspects of the data.</td>
+<td>At least 3 questions were initially asked of the data, but there is some overlap between questions.</td>
+<td>Fewer than 3 initial questions were posed of the data.</td>
+</tr>
+<tr class="even">
+<td>Depth of Exploration</td>
+<td>A sufficient number of follow-up questions were asked to yield insights that helped to more deeply explore the initial questions.</td>
+<td>Some follow-up questions were asked, but they did not take the analysis much deeper than the initial questions.</td>
+<td>No follow-up questions were asked after answering the initial questions.</td>
+</tr>
+<tr class="odd">
+<td>Data Quality</td>
+<td>Data quality was thoroughly assessed with extensive profiling of fields and records.</td>
+<td>Simple checks were conducted on only a handful of fields or records.</td>
+<td>Little or no evidence that data quality was assessed.</td>
+</tr>
+<tr class="even">
+<td>Visualizations</td>
+<td>More than 10 visualizations were produced, and a variety of marks and encodings were explored. All design decisions were both expressive and effective.</td>
+<td>At least 10 visualizations were produced. The visual encodings chosen were largely effective and expressive, but some errors remain.</td>
+<td>Several ineffective or inexpressive design choices are made. Fewer than 10 visualizations have been produced.</td>
+</tr>
+<tr class="odd">
+<td>Data Transformation</td>
+<td>More advanced transformation were used to extend the dataset in interesting or useful ways.</td>
+<td>Simple transforms (e.g., sorting, filtering) were primarily used.</td>
+<td>The raw dataset was used directly, with little to no additional transformation.</td>
+</tr>
+<tr class="even">
+<td>Captions</td>
+<td>Captions richly describe the visualizations and contextualize the insight within the analysis.</td>
+<td>Captions do a good job describing the visualizations, but could better connect prior or subsequent steps of the analysis.</td>
+<td>Captions are missing, overly brief, or shallow in their analysis of visualizations.</td>
+</tr>
+<tr class="odd">
+<td>Creativity &amp; Originality</td>
+<td>You exceeded the parameters of the assignment, with original insights or a particularly engaging design.</td>
+<td>You met all the parameters of the assignment.</td>
+<td>You met most of the parameters of the assignment.</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Handle positioning of the toggle
+      window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+      const annoteTargets = window.document.querySelectorAll('.code-annotation-anchor');
+      for (let i=0; i<annoteTargets.length; i++) {
+        const annoteTarget = annoteTargets[i];
+        const targetCell = annoteTarget.getAttribute("data-target-cell");
+        const targetAnnotation = annoteTarget.getAttribute("data-target-annotation");
+        const contentFn = () => {
+          const content = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          if (content) {
+            const tipContent = content.cloneNode(true);
+            tipContent.classList.add("code-annotation-tip-content");
+            return tipContent.outerHTML;
+          }
+        }
+        const config = {
+          allowHTML: true,
+          content: contentFn,
+          onShow: (instance) => {
+            selectCodeLines(instance.reference);
+            instance.reference.classList.add('code-annotation-active');
+            window.tippy.hideAll();
+          },
+          onHide: (instance) => {
+            unselectCodeLines();
+            instance.reference.classList.remove('code-annotation-active');
+          },
+          maxWidth: 300,
+          delay: [50, 0],
+          duration: [200, 0],
+          offset: [5, 10],
+          arrow: true,
+          appendTo: function(el) {
+            return el.parentElement.parentElement.parentElement;
+          },
+          interactive: true,
+          interactiveBorder: 10,
+          theme: 'quarto',
+          placement: 'right',
+          popperOptions: {
+            modifiers: [
+            {
+              name: 'flip',
+              options: {
+                flipVariations: false, // true by default
+                allowedAutoPlacements: ['right'],
+                fallbackPlacements: ['right', 'top', 'top-start', 'top-end'],
+              },
+            },
+            {
+              name: 'preventOverflow',
+              options: {
+                mainAxis: false,
+                altAxis: false
+              }
+            }
+            ]        
+          }      
+        };
+        window.tippy(annoteTarget, config); 
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          // default icon
+          link.classList.add("external");
+      }
+    }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
