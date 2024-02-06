@@ -1,0 +1,558 @@
+---
+title: "A3"
+author: "Sheeba Moghal"
+format: 
+    html:
+        embed-resources: true
+        code: true
+execute:
+    echo: True
+jupyter: python3
+---
+
+# Introduction 
+
+At Chiba University Hospital, data was gathered over a number of years to create a database. A few of the patients who came to the hospital's outpatient clinic had conditions related to collagen. An adjacent private clinic's family doctor recommended the hospital to them. Thrombosis is a significant and severe consequence of collagen illnesses and a leading cause of death. Thrombosis is a condition where blood clots more easily and obstructs blood arteries. Treatment for thrombosis needs to be emergency-oriented, and early detection and risk assessment are crucial. 
+
+# Data Exploration
+
+The dataset includes 1,241 patient records from a hospital that are spread across several CSV files. Patient identification, demographic information such as sex and birthdate, and specifics about hospital visits and admissions are all included in the "patient-info.csv" file. Specific collagen-related test results, such as antibody concentrations and coagulation test results, are recorded in "exam.csv". "symptoms.csv" is a list of symptoms found during specific testing, while "diagnosis.csv" records the diagnoses of patients. Finally, "ana-pattern.csv" includes ANA test patterns that support the identification of autoimmune diseases. This extensive dataset enables insights into collagen-related disorders and related treatments by facilitating the examination of patient demographics, test findings, diagnoses, symptoms, and ANA patterns.
+
+# Data Pre-processng 
+
+Before the visual exploration, we will first attempt to understand and clean the data.
+
+```{python}
+
+# Importing the libraries 
+import numpy as np 
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from statsmodels.graphics.mosaicplot import mosaic
+from scipy.stats import chi2_contingency
+plt.style.use('/Users/sheebamoghal/.matplotlib/stylelib/sheeba_style.mplstyle')
+
+# Reading the files
+
+ana=pd.read_csv('data/ana-pattern.csv')
+diagnosis=pd.read_csv('data/diagnosis.csv')
+exam=pd.read_csv('data/exam.csv')
+patient=pd.read_csv('data/patient-info.csv')
+symptoms=pd.read_csv('data/symptoms.csv')
+
+```
+
+## Data Set Exploration 
+
+### 1. ANA 
+When we look at the ANA dataset, which is the dataset for the antinuclear patterns, we see that the ana patterns. However, the we changed the datatype into
+
+```{python}
+
+print(ana.head(5))
+print(ana.dtypes)
+# the examination is not in pd.date format
+ana['examination_date']= pd.to_datetime(ana['examination_date'])
+```
+
+We see that there are duplicates of the id, which will be dropped as, if there is no primary key, it makes it difficult to analyse and merge the dataforms. In terms of the missing values, they will not be dropped yet until the questions have been explored.
+
+```{python}
+print(ana.dtypes)
+ana_dup=ana.duplicated(subset=['id'])
+print(ana_dup)
+# shape before any processing
+beforeana= ana.shape
+print(beforeana)
+# dropping all the duplicate ids.
+ana=ana.dropna(subset='id')
+# after dropping, the following is the shape
+print(ana.shape)
+# checking missing values
+print(ana.isnull().sum())
+
+```
+
+
+### 2. Diagnosis 
+
+For the diagnosis dataset, which contains diagnosis of collagen disease for the patients with the specialised tests, the data formats have been adjusted, and it interesting to see the unique diagnosis for other diseases. The duplocate ids and the missing ids have been removed. The missing values are kept the same to tackle on basis of the questions asked. 
+
+```{python}
+
+print(diagnosis.head(10))
+print(diagnosis.dtypes)
+print(diagnosis['diagnosis'].unique())
+diagnosis['examination_date']=pd.to_datetime(diagnosis['examination_date'])
+print(diagnosis.dtypes)
+# shape before the data preprocessing
+beforediagnosis= diagnosis.shape
+print(beforediagnosis)
+diagnosis=diagnosis.dropna(subset='id')
+# shape after preprocessing
+print(diagnosis.shape)
+print(diagnosis.isnull().sum())
+```
+
+### 3. Exam
+
+The exam data deals with a huge amount of missing values, and hence, irrespective of the shape, the missing values will still be retained to focus on the question. 
+
+
+```{python}
+
+print(exam.head(5))
+print(exam.dtypes)
+exam['examination_date']=pd.to_datetime(exam['examination_date'])
+exambefore=exam.shape
+print(exambefore)
+exam=exam.dropna(subset='id')
+print(exam.shape)
+print(exam.isnull().sum())
+
+```
+
+### 4. Patient 
+
+This dataset contains record data of the patients. Followed the similar pattern as above.
+
+```{python}
+
+print(patient.head(10))
+print(patient.dtypes)
+# changed into datetime grame
+patient['dob']=pd.to_datetime(patient['dob'])
+patient['patient_data_recorded_date']=pd.to_datetime(patient['patient_data_recorded_date'])
+patient['hospital_visit_date']=pd.to_datetime(patient['hospital_visit_date'])
+patientbefore=patient.shape
+print(patientbefore)
+patient=patient.dropna(subset='id')
+print(patient.shape)
+print(patient.isnull().sum())
+
+
+```
+
+```{python}
+
+print(patient.head(2))
+
+```
+
+### 5. Symptoms 
+
+The symptoms data contains information about the symptoms that patients had when they were getting tested. We follow a similar pattern of changing the datatypes, making sure that missing and duplicate ids are removed.
+
+```{python}
+
+print(symptoms.head(10))
+print(symptoms.dtypes)
+symptoms['examination_date']=pd.to_datetime(symptoms['examination_date'])
+symptomsbefore=symptoms.shape
+print(symptomsbefore)
+print(symptoms.isnull().sum())
+
+```
+
+#### Merging the datasets
+
+When we look at such varied datasets, one of the first steps we are often taught is to look at the primary key and join all the dataframes together, but often what it does is create a huge dataset with a lot of missing values and completely reduce the dataset. The meaningful information which is mentioned, may or may not directly tell any story as it may or may not have diverse information. Hence, although an attempt was made to merge the dataset, it has been refrained as on basis of the questions asked, the data can be merged. This often highlights the critique of traditional data cleaning methodology of just dropping all the columns or imputing them through another way. When it comes to medical or economic data for instance, imputing them may lead to a loss of vital information as these domains deal with real lives of people, hence, care has to be imposed when dealing with such data. Although there is as litle information as possible, that has to be treated as a "golden" potion to discover insights in the datasets.
+
+## Questions Exploration. 
+
+Looking at the data, there is a lot to unpack here. It is a deep rabbit hole that there is often possibility to get drowned in. Keeping that in mind, the initial questions that I wanted to ask are 
+
+1. Is there any association between collagen related tests and diagnosis? Any specific patterns in terms of the antibodies? Any specific biomarkers? or specific symptoms?
+2. What is the role of Gender in the presence of collagen diseases? Is there any difference in the prevalance or any specific symptoms? Is there any strong correlation between the severity?
+3. Is there any association between the diagnosis and the presence of thrombosis? 
+4. How does age play a role in the presence of thrombosis? and in terms of hospital visitations?
+
+Although these were my initial questions looking at the data, I wanted to focus on merging the datasets on basis of the question it is trying to answer, thus highlighting the importance of "no same size for all" approach. Visual storytelling, although it is absolutely important, the way the data is treated acts as a foundation for this. 
+
+## Visual Exploration 
+
+In this section, the data is explored on basis of the nature of the question and the data is treated accordingly.
+
+### Question 1. 
+
+The first question I had was in terms of the biomarkers. Using the datasets of 'diagnosis.csv' and 'exam.csv', we see the patient's examination data of those that had gotten the special collagen related tests done, in addition to the diagnosis of it. My attempt is to understand if there are any specific biomarkers for the tests done. These biomarkers can help us understand there is any abnormality in the blood. Hence, the data has been merged on diagnosis.csv and exam.csv with the similar foreign keys of 'id' and 'examination_date', through the inner join. The missing values will be dropped. Since 'kct', 'rvvt', 'lac' have majority of the missing values, they will be dropped. However, the severity though a major component of the data, cannot be dropped as it may contain initial exploration of the severity.
+
+
+```{python}
+
+diag_exam=pd.merge(diagnosis, exam, on=['id', 'examination_date'], how='inner')
+print(diag_exam.shape)
+print(diag_exam.isnull().sum()) #619, 12
+print(diag_exam.dropna(subset=['ana', 'examination_date']))
+diag_exam=diag_exam.drop(columns=['kct','rvvt','lac'])
+print(diag_exam.head(10))
+
+```
+
+Before dropping the severity, it is important to understand the base level information and understand the association for thrombosis and the severity of it for patients who whom it is diagnosed. Looking at this, we can see that for instances when the thrombosis is present, majority of the patients suffered from 'most severe' thrombosis, followed by 'severe' and then 'mild'.
+
+```{python}
+
+#| label: Association between Severity and Thrombosis
+#| fig-cap: "There is a high positive association between New cases recorded between 2006 and 2008 for the ages between 26-36 years. (Source: Seabold & Perktold, 2010)"
+
+plt.figure(figsize=(10, 6))
+mosaic(diag_exam, ['severity', 'thrombosis'], axes_label=False)
+plt.xticks(rotation=90, ha='right')
+plt.title("Association between Severity and Thrombosis")
+plt.ylabel("Presence")
+plt.xlabel("Severity")
+plt.show()
+
+```
+
+
+Additonally, whilst trying to understand the aassociation between severity and presence of thrombosis, it would also be better to explore the diagnosis, during the date of examination, and if thrombosis is present, how is the severity? It is seen that 'Antiphospholipid Syndrome', 'Systemic Lupuss Erythematosus' and 'Others' are the diseases which are additionally diagnosed with the presence of severe thrombosis. 
+
+
+```{python}
+
+diag_exam=diag_exam.dropna(subset=['diagnosis', 'examination_date', 'severity'])
+plt.figure(figsize=(8, 4))
+sns.stripplot(data=diag_exam, x='examination_date', y="diagnosis", hue="severity")
+plt.xticks(rotation=90)
+plt.title("Severity and Examination Date Relevance")
+plt.xlabel("Examination Date")
+plt.ylabel("Diagnosis")
+plt.legend(title="Severity")
+plt.show()
+
+```
+
+Though we see the association between the severity and thrombosis, it may not give accurate information since majority of data for 'severity' is missing. However, this serves as a good base to understand with the existing data.
+
+After this, it is also important to understand the distribution of thrombosis across different categories. With the diagnosis of other diseases like 'Systemic Lupuss Erythematosus', 'Other' and 'Antiphospholipid Syndrome' have more probability of being present prior to the diagnosis in the presence of thrombosis than others. This tells us that patients that are diagnosed with these diseases may have a greater probability of having thrombosis than others. 'Abortion' shows more positive instances than the negative although the data collected for that is low, which showcases the importance finding more data and exploring such phenomenons. 
+
+```{python}
+
+# NEED TO WORK ON THIS 
+
+# Group by 'diagnosis' and 'thrombosis', and count the occurrences
+plt.figure(figsize=(6, 4))
+diag_throm = diag_exam.groupby(['diagnosis', 'thrombosis']).size().unstack(fill_value=0)
+
+# Reset the index to make 'diagnosis' a regular column
+diag_throm_reset = diag_throm.reset_index()
+
+# Plotting the stacked bar plot
+plt.figure(figsize=(12, 8))
+diag_throm_reset.plot(kind='bar', stacked=True, x='diagnosis', figsize=(12, 8))
+plt.title('Stacked Bar Plot of Categorical Variables')
+plt.xlabel('Diagnosis')
+plt.ylabel('Count')
+plt.legend(title='Thrombosis')
+plt.show()
+
+
+
+```
+
+
+After understanding the association between the diagnosis, the severity and the symptoms, we finally try to understand the presence of biomarkers in these diseases. The data has been melted to focus on the antibodies. In terms of the antibodies, the anti-Cardiolipin antibody (IgG) concentration is more present for the patients with most severe thrombosis, followed by severe. For the anti-Cardiolipin antibody (IgM) concentration, the presence of thrombosis is mild in comparison. This showcases an almost equitible distribution between the most severe and mild cases for the first two antibodies, thus showcasing that these may not be specific biomarkers. 
+
+```{python}
+
+col=['a_cl_ig_g', 'a_cl_ig_m', 'a_cl_ig_a']
+keep = ['id', 'thrombosis', 'severity']
+diag_melted = pd.melt(diag_exam, id_vars=keep, value_vars=col, var_name='Antibody', value_name='Concentration')
+print(diag_melted.head(5))
+print(diag_melted.shape)
+```
+
+```{python}
+
+plt.figure(figsize=(7, 6))
+sns.barplot(data=diag_melted, x='Antibody', y='Concentration', hue='severity')
+plt.title('Thrombosis Count by Antibody and Concentration')
+plt.xlabel('Antibody Type')
+plt.ylabel('Concentration')
+plt.legend(title='Thrombosis')
+plt.show()
+```
+
+### Question 2 
+
+Another interesting aspect I wanted to explore was in terms of the gender data as the risk of thrombosis can vary depending on gender. Do woman's hormonal fluctuations, pregnancy, and the use of estrogen-based contraceptives play a role?. But males are also susceptible, particularly as they get older. So I'd like to know that though medical history and individual risk factors are important drivers of thrombosis risk, however does gender can also play a role?
+
+For the intial distribution, in terms of the admissions, we see more admissions for Females than Males by a significant percentage. This may indicate a bias towards one gender. Even in terms of admission, more of Females had been admitted than Males. So does gender really play a role?
+
+```{python}
+ana_patient = pd.merge(ana, patient, on=['id'], how='inner')
+print(ana_patient.isnull().sum()) # shape is 408, 8
+print(ana_patient.dropna(subset=['examination_date', 'sex','admission']))
+ana_patient= ana_patient.dropna(subset=['examination_date', 'sex','admission', 'hospital_visit_date'])
+
+
+plt.figure(figsize=(7.5, 6))
+plt.subplot(1, 2, 1)
+sns.countplot(data=ana_patient, x='sex')
+plt.title('Distribution of Sex')
+
+plt.subplot(1, 2, 2)
+sns.countplot(data=ana_patient, x='admission', hue="sex")
+plt.title('Distribution of Admission')
+
+plt.tight_layout()
+plt.show()
+```
+
+Though more Females than Males have been admitted in the hospital, what are their individual symptoms they had reported? This is important to know if it is a gender based symptom or a general symptom. Hence, the data has been merged on patient and symptoms, that talks about the patient's data and the symptoms that patients had during the test. The data has then been manipulated to explore the most common symtpoms in men and women that were specific to them. 
+
+We can see that Abortion, Convulsion, Thrombophlebitis, etc are female specific, whereas Budd-Chiari though the incidence is common is Males and Females, it is more common in men in this dataset, followed by Myocardial Infarction. Though these two are most common symptoms for men, for women, all of them listed below were common.
+
+```{python}
+
+patient_symp=pd.merge(patient, symptoms, on=['id'], how='inner') 
+patient_symp.isnull().sum() # 74, 8
+patient_symp.head(5)
+
+# group by gender
+gender_count = patient_symp.groupby(['sex', 'symptom']).size().unstack(fill_value=0)
+print(gender_count)
+total_count = gender_count.sum()
+gender_prop_sym = gender_count.div(total_count)
+gender_prop_sym
+male_symptoms = gender_prop_sym.loc['M'].sort_values(ascending=False).head(5)
+female_symptoms = gender_prop_sym.loc['F'].sort_values(ascending=False).head(5)
+
+```
+
+```{python}
+
+
+plt.figure(figsize=(8, 5))
+
+sns.barplot(x=male_symptoms.values, y=male_symptoms.index)
+plt.title('Symptoms Common in Male Patients')
+plt.xlabel('Proportion')
+plt.ylabel('Symptom')
+
+plt.figure(figsize=(7, 4))
+sns.barplot(x=female_symptoms.values, y=female_symptoms.index)
+plt.title('Symptoms Common in Female Patients')
+plt.xlabel('Proportion')
+plt.ylabel('Symptom')
+plt.tight_layout()
+plt.show()
+
+```
+
+After looking at the female patients closely, we see that it is the Central Nervous System Lupus which is the most common symtom. The above graph talks about the female specific symptom but further exploration into general filtering based on Females, Central Nervous Lupus and Thrombosis, we can say that there are so specific symtoms that are gender related.
+
+```{python}
+
+female = patient_symp[patient_symp['sex'] == 'F']
+female_count = female['symptom'].value_counts()
+plt.figure(figsize=(8, 6))
+sns.barplot(x=female_count.index, y=female_count.values)
+plt.title('Distribution of Symptoms among Females')
+plt.xlabel('Symptom')
+plt.ylabel('Count')
+plt.xticks(rotation=90, ha='right') 
+plt.tight_layout()
+plt.show()
+```
+
+Additionally, to understand the diagnosis of the test taken, the diagnosis and patient data had been merged, with the missing values dropped for 'date of birth', 'sex', 'admission' and 'hospital_visit_date' as these are the indicators for further gender exploration. 
+
+
+```{python}
+
+diag_pat=pd.merge(diagnosis, patient, on=['id'], how='inner')
+print(diag_pat.isnull().sum()) # 2020, 8
+print(diag_pat.dropna(subset=['dob', 'sex','admission', 'hospital_visit_date']))
+
+female_symp = diag_pat[diag_pat['sex'] == 'F']
+print(female_symp.head(2))
+symp_count = female_symp['diagnosis'].value_counts()
+print(symp_count.head(2))
+top_f_symp = symp_count.head(2)
+
+```
+
+We have looked into gender in terms of symptoms and in terms of hospital admission, but how does gender play a role in terms of diagnosis? We see that for most of the female patients, we can see that for the females, most common diagnosis was 'Mixed Connective Tissue Disease', 'Other', 'Systematic Lupus Erythmatosus', 'Paget-Schotter Syndrome', 'Stevens-Johnson Syndrome'
+
+```{python}
+
+plt.figure(figsize=(10, 8))
+sns.swarmplot(data=female_symp, x='diagnosis')
+plt.title('Swarm Plot of Diagnoses Reported by Female Patients')
+plt.xlabel('Diagnosis')
+plt.ylabel('Frequency')
+plt.xlim()
+plt.xticks(rotation=90)
+plt.show()
+
+```
+
+
+## Question 3 
+
+For me, another interesting aspect to explore is the diagnosis and the presence of thrombosis. Firstly, to understand the relationship between Examiation date and Thrombosis, we see there is no relationship between the Examination Date and Thrombosis, showcasing no signs of temporal trends. 
+
+```{python}
+
+diag_exam['thrombosis'] = diag_exam['thrombosis'].fillna(0)  
+plt.figure(figsize=(8, 6))
+sns.scatterplot(data=diag_exam, x='examination_date', y='thrombosis')
+plt.title('Relationship between Examination Date and Thrombosis')
+plt.xlabel('Examination Date')
+plt.ylabel('Thrombosis')
+plt.show()
+
+```
+
+For exploring thrombosis, we need to understand the general admission status and using a pie chart, we see that around 60% of the people have not been admitted. 
+
+```{python}
+
+# Plotting
+plt.figure(figsize=(8, 6))
+
+# Pie chart
+admission_counts = patient['admission'].value_counts()
+plt.figure(figsize=(8, 6))
+plt.pie(admission_counts, labels=admission_counts.index, autopct='%1.1f%%', colors=['skyblue', 'lightcoral'])
+plt.title('Distribution of Admission Status')
+plt.axis('equal') 
+plt.show()
+
+```
+
+However, more than pie chart, a count plot showcases the counts of the dataset. This is a reliable metho and tells me that only around 500 people have been admitted in the hospital.
+
+```{python}
+
+sns.countplot(data=patient, x='admission')
+plt.title('Distribution of Admission Status')
+plt.xlabel('Admission Status')
+plt.ylabel('Count')
+plt.show()
+
+```
+
+Another aspect to mention in terms of admission is through Gender and we can see that majority of Females have a greater proportion of mild thrombosis, but for Males, it is a a greater proportion of severe thrombosis. 
+
+```{python}
+exam_pat=pd.merge(exam, patient,  on=['id'], how='inner')
+exam_pat.isnull().sum() # 417, 16
+
+plt.figure(figsize=(5, 6))
+sns.displot(
+    data=exam_pat, y="admission", hue="severity", col="sex",
+    kind="ecdf", height=5, aspect=.6,
+)
+plt.ylabel("Admission")
+plt.suptitle("Distribution of Admission by Severity and Gender", fontsize=19)
+plt.subplots_adjust(top=0.88) 
+plt.show()
+
+```
+
+In understand the final aspect of this dataset, is the number of hospital visits per recorded date and we see that the incidence of hospital visits were higher between 1997 and 1998. This showcases an interesting pattern about whether there was any specific cause for this?
+
+```{python}
+
+admission_vs_visit_count = patient.groupby('patient_data_recorded_date')['hospital_visit_date'].count()
+
+admission_vs_visit_count_df = admission_vs_visit_count.reset_index(name='count')
+
+print(admission_vs_visit_count_df)
+print(admission_vs_visit_count_df.dtypes)
+
+plt.figure(figsize=(8, 6))
+plt.plot(admission_vs_visit_count_df['patient_data_recorded_date'], admission_vs_visit_count_df['count'], marker='o', linestyle='-')
+plt.title('Number of Hospital Visits per Recorded Date')
+plt.xlabel('Recorded Date')
+plt.ylabel('Number of Hospital Visits')
+plt.xticks(rotation=45)
+plt.ylim(0, 60)
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+```
+
+Additionally, since we have explored the other variables that give us information about thrombosis, like admission status, examination date, hospital visitation dates, a contingency table has been created for the diagnosis and thrombosis to assess the dependancy. As the p value is 1, this means there is no dependancy between Diagnosis and Thrombosis, however, we can see that those with Thrombosis have also been diagnosed with Lupus.
+
+```{python}
+
+contingency = pd.crosstab(diag_exam['diagnosis'], diag_exam['thrombosis'])
+
+chi2, p, _, _ = chi2_contingency(contingency)
+
+print(" The chi-squared value is:", chi2)
+print("The p-value is:", p)
+
+plt.figure(figsize=(6, 4))
+sns.heatmap(contingency, annot=True, fmt='d', cmap='coolwarm', cbar=False)
+plt.title('Correlation between Symptoms and Thrombosis')
+plt.xlabel('Thrombosis')
+plt.ylabel('Symptoms')
+plt.show()
+
+```
+
+
+### Question 4
+
+The final question I wanted to explore was in terms of age, and see how age plays a role in detecting thrombosis. 
+
+For the age to be calculated, the date of birth of the patient and the hospital visit date was used. Looking at the graph, we see that 0 refers to 'No admission' and 1 refers to 'Admission', so we see that for patients between 18-29 have veeb admitted the most, and those aged 70 and above have been admitted the least. This provides a base to understand if age does play a role for thrombosis.
+
+```{python}
+
+patient['age'] = (patient['hospital_visit_date'] - patient['dob']).dt.days // 365
+
+print(patient[['dob', 'hospital_visit_date', 'age']])
+
+age_groups = pd.cut(patient['age'], bins=[0, 18, 30, 40, 50, 60, 70, 80, 90, 100],
+                    labels=['0-17', '18-29', '30-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90-100'])
+
+plt.figure(figsize=(8, 6))
+sns.countplot(data=patient, x=age_groups, hue='admission')
+plt.title('Frequency of Hospital Admissions Across Age Groups')
+plt.xlabel('Age Group')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.legend(title='Admission Status')
+plt.show()
+```
+
+Hence, in terms of age, the final question to be answered is the presence of correlation between age group and the frequency of diagnosis. We see that those aged 18-29 have the most common symtoms of Stevens-Johnson Syndrome and Systemic Lupus Erythematosus
+
+```{python}
+
+
+diag_pat['age'] = (diag_pat['hospital_visit_date'] - diag_pat['dob']).dt.days // 365
+
+#print(diag_pat[['dob', 'hospital_visit_date', 'age']])
+
+age_groups1 = pd.cut(diag_pat['age'], bins=[0, 18, 30, 40, 50, 60, 70, 80, 90, 100],
+                    labels=['0-17', '18-29', '30-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90-100'])
+diagnosis_counts = diag_pat.groupby([age_groups1, 'diagnosis']).size().unstack(fill_value=0)
+
+plt.figure(figsize=(9, 8))
+sns.heatmap(diagnosis_counts, annot=False, fmt='d')
+plt.title('Frequency of Diagnoses Across Age Groups')
+plt.xlabel('Diagnosis')
+plt.ylabel('Age Group')
+plt.xticks(rotation=90)
+plt.yticks(rotation=0)
+plt.show()
+
+```
+
+
+# Conclusions
+
+Things I learnt
+
+1. You don't always need to drop all the values in the dataset unless and until it is require
+2. 
