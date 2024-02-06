@@ -46,7 +46,7 @@ symptoms=pd.read_csv('data/symptoms.csv')
 ## Data Set Exploration 
 
 ### 1. ANA 
-When we look at the ANA dataset, which is the dataset for the antinuclear patterns, we see that the ana patterns. However, the we changed the datatype into
+When we look at the ANA dataset, which is the dataset for the antinuclear patterns, we see that the ana patterns. However, the we changed the datatype into datetime frame.
 
 ```{python}
 
@@ -190,12 +190,13 @@ print(diag_exam.head(10))
 
 ```
 
-Before dropping the severity, it is important to understand the base level information and understand the association for thrombosis and the severity of it for patients who whom it is diagnosed. Looking at this, we can see that for instances when the thrombosis is present, majority of the patients suffered from 'most severe' thrombosis, followed by 'severe' and then 'mild'.
+Before dropping the severity, it is important to understand the base level information and understand the association for thrombosis and the severity of it for patients for whom it is diagnosed. Looking at this, we can see that for instances when the thrombosis is present, majority of the patients suffered from 'most severe' thrombosis, followed by 'severe' and then 'mild'.
 
 ```{python}
-
+#| echo: true
+#| eval: true
 #| label: Association between Severity and Thrombosis
-#| fig-cap: "There is a high positive association between New cases recorded between 2006 and 2008 for the ages between 26-36 years. (Source: Seabold & Perktold, 2010)"
+#| fig-cap: "There are greater instances of cases being more severe in the presence of Thrombosis (Source: Chiba University Database, n.d)"
 
 plt.figure(figsize=(10, 6))
 mosaic(diag_exam, ['severity', 'thrombosis'], axes_label=False)
@@ -208,10 +209,14 @@ plt.show()
 ```
 
 
-Additonally, whilst trying to understand the aassociation between severity and presence of thrombosis, it would also be better to explore the diagnosis, during the date of examination, and if thrombosis is present, how is the severity? It is seen that 'Antiphospholipid Syndrome', 'Systemic Lupuss Erythematosus' and 'Others' are the diseases which are additionally diagnosed with the presence of severe thrombosis. 
+Additonally, whilst trying to understand the association between severity and presence of thrombosis, it would also be better to explore the diagnosis, during the date of examination, and if thrombosis is present, how is the severity? It is seen that 'Antiphospholipid Syndrome', 'Systemic Lupuss Erythematosus' and 'Others' are the diseases which are additionally diagnosed with the presence of severe thrombosis. 
 
 
 ```{python}
+#| echo: true
+#| eval: true
+#| label: Severity and Examination Date Relevance
+#| fig-cap: "'Antiphospholipid Syndrome', 'Systemic Lupuss Erythematosus' and 'Others' are the diseases which are additionally diagnosed with the presence of severe thrombosis.  (Source: Chiba University Database, n.d)"
 
 diag_exam=diag_exam.dropna(subset=['diagnosis', 'examination_date', 'severity'])
 plt.figure(figsize=(8, 4))
@@ -225,34 +230,26 @@ plt.show()
 
 ```
 
-Though we see the association between the severity and thrombosis, it may not give accurate information since majority of data for 'severity' is missing. However, this serves as a good base to understand with the existing data.
+Though we see the association between the severity and thrombosis, it may not give accurate information since majority of data for 'severity' is missing. However, this serves as a good base to understand with the existing data. This also assists us with the future data collection methods.
 
 After this, it is also important to understand the distribution of thrombosis across different categories. With the diagnosis of other diseases like 'Systemic Lupuss Erythematosus', 'Other' and 'Antiphospholipid Syndrome' have more probability of being present prior to the diagnosis in the presence of thrombosis than others. This tells us that patients that are diagnosed with these diseases may have a greater probability of having thrombosis than others. 'Abortion' shows more positive instances than the negative although the data collected for that is low, which showcases the importance finding more data and exploring such phenomenons. 
 
 ```{python}
-
-# NEED TO WORK ON THIS 
-
-# Group by 'diagnosis' and 'thrombosis', and count the occurrences
-plt.figure(figsize=(6, 4))
+#| echo: true
+#| eval: true
+#| label: Bar Plot of Categorical Variables
+#| fig-cap: " Systematic Lupus, Other, Antiphospholipid Syndrome are the common Diagnosis in the presence of Thrombosis  (Source: Chiba University Database, n.d)"
 diag_throm = diag_exam.groupby(['diagnosis', 'thrombosis']).size().unstack(fill_value=0)
-
-# Reset the index to make 'diagnosis' a regular column
 diag_throm_reset = diag_throm.reset_index()
-
-# Plotting the stacked bar plot
-plt.figure(figsize=(12, 8))
+plt.figure(figsize=(6, 4))
 diag_throm_reset.plot(kind='bar', stacked=True, x='diagnosis', figsize=(12, 8))
-plt.title('Stacked Bar Plot of Categorical Variables')
+plt.title('Bar Plot of Categorical Variables')
 plt.xlabel('Diagnosis')
 plt.ylabel('Count')
 plt.legend(title='Thrombosis')
 plt.show()
 
-
-
 ```
-
 
 After understanding the association between the diagnosis, the severity and the symptoms, we finally try to understand the presence of biomarkers in these diseases. The data has been melted to focus on the antibodies. In terms of the antibodies, the anti-Cardiolipin antibody (IgG) concentration is more present for the patients with most severe thrombosis, followed by severe. For the anti-Cardiolipin antibody (IgM) concentration, the presence of thrombosis is mild in comparison. This showcases an almost equitible distribution between the most severe and mild cases for the first two antibodies, thus showcasing that these may not be specific biomarkers. 
 
@@ -266,7 +263,10 @@ print(diag_melted.shape)
 ```
 
 ```{python}
-
+#| echo: true
+#| eval: true
+#| label: Thrombosis Count by Antibody and Concentration
+#| fig-cap: " In terms of the antibodies, the anti-Cardiolipin antibody (IgG) concentration is more present for the patients with most severe thrombosis, followed by severe. For the anti-Cardiolipin antibody (IgM) concentration, the presence of thrombosis is mild in comparison. (Source: Chiba University Database, n.d)"
 plt.figure(figsize=(7, 6))
 sns.barplot(data=diag_melted, x='Antibody', y='Concentration', hue='severity')
 plt.title('Thrombosis Count by Antibody and Concentration')
@@ -283,11 +283,15 @@ Another interesting aspect I wanted to explore was in terms of the gender data a
 For the intial distribution, in terms of the admissions, we see more admissions for Females than Males by a significant percentage. This may indicate a bias towards one gender. Even in terms of admission, more of Females had been admitted than Males. So does gender really play a role?
 
 ```{python}
+#| echo: true
+#| eval: true
+#| label: Distribution of Admission
+#| fig-cap: "For the intial distribution, in terms of the admissions, we see more admissions for Females than Males by a significant percentage. (Source: Chiba University Database, n.d)"
+
 ana_patient = pd.merge(ana, patient, on=['id'], how='inner')
 print(ana_patient.isnull().sum()) # shape is 408, 8
 print(ana_patient.dropna(subset=['examination_date', 'sex','admission']))
 ana_patient= ana_patient.dropna(subset=['examination_date', 'sex','admission', 'hospital_visit_date'])
-
 
 plt.figure(figsize=(7.5, 6))
 plt.subplot(1, 2, 1)
@@ -324,10 +328,12 @@ female_symptoms = gender_prop_sym.loc['F'].sort_values(ascending=False).head(5)
 ```
 
 ```{python}
-
+#| echo: true
+#| eval: true
+#| label: Common Symptoms between Male and Female Patients
+#| fig-cap: "We can see that Abortion, Convulsion, Thrombophlebitis, etc are female specific, whereas Budd-Chiari though the incidence is common is Males and Females, it is more common in men in this dataset, followed by Myocardial Infarction. Though these two are most common symptoms for men, for women, all of them listed below were common. (Source: Chiba University Database, n.d)"
 
 plt.figure(figsize=(8, 5))
-
 sns.barplot(x=male_symptoms.values, y=male_symptoms.index)
 plt.title('Symptoms Common in Male Patients')
 plt.xlabel('Proportion')
@@ -343,9 +349,13 @@ plt.show()
 
 ```
 
-After looking at the female patients closely, we see that it is the Central Nervous System Lupus which is the most common symtom. The above graph talks about the female specific symptom but further exploration into general filtering based on Females, Central Nervous Lupus and Thrombosis, we can say that there are so specific symtoms that are gender related.
+After looking at the female patients closely, we see that it is the Central Nervous System Lupus which is the most common symptom. The above graph talks about the female specific symptom but further exploration into general filtering based on Females, Central Nervous Lupus and Thrombosis, we can say that there are no specific symtoms that are gender related.
 
 ```{python}
+#| echo: true
+#| eval: true
+#| label: Distribution of Symptoms among Females
+#| fig-cap: "After looking at the female patients closely, we see that it is the Central Nervous System Lupus which is the most common symtom. The above graph talks about the female specific symptom but further exploration into general filtering based on Females, Central Nervous Lupus and Thrombosis, we can say that there are so specific symptoms that are gender related. (Source: Chiba University Database, n.d)"
 
 female = patient_symp[patient_symp['sex'] == 'F']
 female_count = female['symptom'].value_counts()
@@ -361,9 +371,9 @@ plt.show()
 
 Additionally, to understand the diagnosis of the test taken, the diagnosis and patient data had been merged, with the missing values dropped for 'date of birth', 'sex', 'admission' and 'hospital_visit_date' as these are the indicators for further gender exploration. 
 
-
 ```{python}
-
+#| echo: true
+#| eval: true
 diag_pat=pd.merge(diagnosis, patient, on=['id'], how='inner')
 print(diag_pat.isnull().sum()) # 2020, 8
 print(diag_pat.dropna(subset=['dob', 'sex','admission', 'hospital_visit_date']))
@@ -376,13 +386,17 @@ top_f_symp = symp_count.head(2)
 
 ```
 
-We have looked into gender in terms of symptoms and in terms of hospital admission, but how does gender play a role in terms of diagnosis? We see that for most of the female patients, we can see that for the females, most common diagnosis was 'Mixed Connective Tissue Disease', 'Other', 'Systematic Lupus Erythmatosus', 'Paget-Schotter Syndrome', 'Stevens-Johnson Syndrome'
+We have looked into gender in terms of symptoms and in terms of hospital admission, but how does gender play a role in terms of diagnosis? We see that for most of the female patients, we can see that for the females, most common diagnosis was 'Mixed Connective Tissue Disease', 'Other', 'Systematic Lupus Erythmatosus', 'Paget-Schotter Syndrome', 'Stevens-Johnson Syndrome'. However this swarm plot is not a reliable estimate, yet it ties in the information from the previous plots. For further exploration, it would be interesting to explore the biomarkers prevalence in specific to these diseases.
 
 ```{python}
+#| echo: true
+#| eval: true
+#| label: Diagnoses Reported by Female Patients
+#| fig-cap: "We see that for most of the female patients, we can see that for the females, most common diagnosis was Mixed Connective Tissue Disease, Other, Systematic Lupus Erythmatosus, Paget-Schotter Syndrome, Stevens-Johnson Syndrome (Source: Chiba University Database, n.d)"
 
 plt.figure(figsize=(10, 8))
 sns.swarmplot(data=female_symp, x='diagnosis')
-plt.title('Swarm Plot of Diagnoses Reported by Female Patients')
+plt.title('Diagnoses Reported by Female Patients')
 plt.xlabel('Diagnosis')
 plt.ylabel('Frequency')
 plt.xlim()
@@ -394,13 +408,17 @@ plt.show()
 
 ## Question 3 
 
-For me, another interesting aspect to explore is the diagnosis and the presence of thrombosis. Firstly, to understand the relationship between Examiation date and Thrombosis, we see there is no relationship between the Examination Date and Thrombosis, showcasing no signs of temporal trends. 
+For me, another interesting aspect to explore is the diagnosis and the presence of thrombosis. Firstly, to understand the relationship between Examination date and Thrombosis, we see there is no relationship between the Examination Date and Thrombosis, showcasing no signs of temporal trends. This specific graph doesn't really give us any more information, hence we need to explore further.
 
 ```{python}
+#| echo: true
+#| eval: true
+#| label: Relationship between Examination Date and Thrombosis
+#| fig-cap: "We see there is no relationship between the Examination Date and Thrombosis, showcasing no signs of temporal trends. (Source: Chiba University Database, n.d)"
 
 diag_exam['thrombosis'] = diag_exam['thrombosis'].fillna(0)  
-plt.figure(figsize=(8, 6))
-sns.scatterplot(data=diag_exam, x='examination_date', y='thrombosis')
+plt.figure(figsize=(7, 5))
+sns.lineplot(data=diag_exam, x='examination_date', y='thrombosis')
 plt.title('Relationship between Examination Date and Thrombosis')
 plt.xlabel('Examination Date')
 plt.ylabel('Thrombosis')
@@ -408,14 +426,14 @@ plt.show()
 
 ```
 
-For exploring thrombosis, we need to understand the general admission status and using a pie chart, we see that around 60% of the people have not been admitted. 
+For exploring thrombosis, we need to understand the general admission status and using a pie chart, we see that around 60% of the people have not been admitted. But pie chart is not a reliable method as though it showcases percentages, it doesn't show the exact quantities.
 
 ```{python}
-
-# Plotting
+#| echo: true
+#| eval: true
+#| label: Distribution of Admission Status Through Piechart
+#| fig-cap: "We see that around 60% of the people have not been admitted. (Source: Chiba University Database, n.d)"
 plt.figure(figsize=(8, 6))
-
-# Pie chart
 admission_counts = patient['admission'].value_counts()
 plt.figure(figsize=(8, 6))
 plt.pie(admission_counts, labels=admission_counts.index, autopct='%1.1f%%', colors=['skyblue', 'lightcoral'])
@@ -428,6 +446,10 @@ plt.show()
 However, more than pie chart, a count plot showcases the counts of the dataset. This is a reliable metho and tells me that only around 500 people have been admitted in the hospital.
 
 ```{python}
+#| echo: true
+#| eval: true
+#| label: Distribution of Admission Status Through Countplot
+#| fig-cap: "We see that majority of the people have not been admitted. (Source: Chiba University Database, n.d)"
 
 sns.countplot(data=patient, x='admission')
 plt.title('Distribution of Admission Status')
@@ -440,6 +462,11 @@ plt.show()
 Another aspect to mention in terms of admission is through Gender and we can see that majority of Females have a greater proportion of mild thrombosis, but for Males, it is a a greater proportion of severe thrombosis. 
 
 ```{python}
+#| echo: true
+#| eval: true
+#| label: Distribution of Admission by Severity and Gender
+#| fig-cap: "We can see that majority of Females have a greater proportion of mild thrombosis, but for Males, it is a greater proportion of severe thrombosis. (Source: Chiba University Database, n.d)"
+
 exam_pat=pd.merge(exam, patient,  on=['id'], how='inner')
 exam_pat.isnull().sum() # 417, 16
 
@@ -458,6 +485,10 @@ plt.show()
 In understand the final aspect of this dataset, is the number of hospital visits per recorded date and we see that the incidence of hospital visits were higher between 1997 and 1998. This showcases an interesting pattern about whether there was any specific cause for this?
 
 ```{python}
+#| echo: true
+#| eval: true
+#| label: Number of Hospital Visits per Recorded Date
+#| fig-cap: "We see that the incidence of hospital visits were higher between 1997 and 1998. (Source: Chiba University Database, n.d)"
 
 admission_vs_visit_count = patient.groupby('patient_data_recorded_date')['hospital_visit_date'].count()
 
@@ -482,6 +513,10 @@ plt.show()
 Additionally, since we have explored the other variables that give us information about thrombosis, like admission status, examination date, hospital visitation dates, a contingency table has been created for the diagnosis and thrombosis to assess the dependancy. As the p value is 1, this means there is no dependancy between Diagnosis and Thrombosis, however, we can see that those with Thrombosis have also been diagnosed with Lupus.
 
 ```{python}
+#| echo: true
+#| eval: true
+#  label: Correlation between Symptoms and Thrombosis
+#| fig-cap: "As the p value is 1, this means there is no dependancy between Diagnosis and Thrombosis, however, we can see that those with Thrombosis have also been diagnosed with Lupus. (Source: Chiba University Database, n.d)"
 
 contingency = pd.crosstab(diag_exam['diagnosis'], diag_exam['thrombosis'])
 
@@ -495,6 +530,7 @@ sns.heatmap(contingency, annot=True, fmt='d', cmap='coolwarm', cbar=False)
 plt.title('Correlation between Symptoms and Thrombosis')
 plt.xlabel('Thrombosis')
 plt.ylabel('Symptoms')
+plt.axis("off")
 plt.show()
 
 ```
@@ -552,7 +588,11 @@ plt.show()
 
 # Conclusions
 
-Things I learnt
+This has been an interesting dataset to work with. After initial data exploration and cleaning, I have realised the importance of "no size fits all" approach. Though we are taught tidying the dataset meant removing all the columns and imputing the values, this data project tries to show us the reality of dataset. Most of the data in real life is messy and we need to make sense of it. 
 
-1. You don't always need to drop all the values in the dataset unless and until it is require
-2. 
+
+In terms of exploring the 4 questions I had asked, there are various questions that could further be explored. Even in terms of the data visualisation, there have been data visualisation techniques utilised, where some worked and some didn't. This showcases the important of visual storytelling. For instance, is there a temporal trend? The gender although plays a role in the presence of thrombosis, it isn't a major predictable variable. There are no specific biomarkers in terms of antibodies, however Lupus is one of the diseases which are dignosed in presence of thrombosis. Interestingly, Thrombosis was majorly diagnosed between the younger cohort. These pulls you into a rabbit hole of exploring the other aspects of genes and other antibodies, which I hope to work on one day.
+
+# References
+
+[1] https://www.chiba-u.ac.jp/e/research/
