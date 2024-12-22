@@ -81,3 +81,10 @@ This project underscores the importance of effective data visualization in medic
 
 ## References
 [1] Chiba University Hospital: [Research Page](https://www.chiba-u.ac.jp/e/research/)
+
+---
+
+## License
+
+This project is licensed under an **All Rights Reserved** license. Unauthorized use, distribution, or modification of the code is strictly prohibited. For inquiries or permission requests, please contact [sm3924@georgetown.edu or msheeba00@gmail.com].
+
