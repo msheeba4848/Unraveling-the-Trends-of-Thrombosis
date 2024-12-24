@@ -1,9 +1,5 @@
 # Unraveling the Trends of Thrombosis: A Visual Story
 
-## Assignment 3
-
-**Author**: Sheeba Moghal
-
 ---
 
 ## Introduction
